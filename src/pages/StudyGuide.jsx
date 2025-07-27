@@ -160,13 +160,13 @@ function StudyGuide() {
   };
 
   return (
-    <div className="container my-5 mt- p-4 rounded" style={{ background: "linear-gradient(to right, #eef2f3, #8e9eab)" }}>
-      <div className="d-flex justify-content-between align-items-center">
-        <h2 className="mb-4 fw-bold">
+    <div className="container my-5 p-3 p-md-4 rounded" style={{ background: "linear-gradient(to right, #eef2f3, #8e9eab)" }}>
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+        <h2 className="fw-bold mb-3 mb-md-0">
           <span role="img" aria-label="book">📘</span> Study Guide
         </h2>
-        <div className="text-end">
-          <div className="position-relative d-inline-block">
+        <div className="text-end mt-2 mt-md-0">
+          <div className="position-relative d-inline-block mx-auto d-block d-md-inline-block">
             <svg width="60" height="60">
               <circle cx="30" cy="30" r="26" fill="none" stroke="#dee2e6" strokeWidth="6" />
               <circle
@@ -233,10 +233,10 @@ function StudyGuide() {
 
       <div className="row">
         {topics.map((topic, index) => (
-          <div className="col-md-4 mb-4" key={topic.id}>
-            <div className="card shadow slide-card" onClick={() => openModal(index)}>
-              <div className="card-body">
-                <h5 className="card-title text-center fw-semibold">
+          <div className="col-12 col-md-6 col-lg-4 mb-4" key={topic.id}>
+            <div className="card shadow slide-card h-100" onClick={() => openModal(index)}>
+              <div className="card-body d-flex justify-content-center align-items-center">
+                <h5 className="card-title text-center fw-semibold m-0">
                   {index + 1}. {topic.title} {openedTopics.includes(topic.id) && <span className="text-success">✅</span>}
                 </h5>
               </div>
@@ -246,9 +246,18 @@ function StudyGuide() {
       </div>
 
       {modalIndex !== null && (
-        <div className="slide-modal">
-          <div className="slide-content bg-white shadow-lg p-4 rounded">
-            <button className="close-btn" onClick={closeModal}>✖</button>
+        <div className="slide-modal d-flex justify-content-center align-items-center">
+          <div
+            className="slide-content bg-white shadow-lg p-4 rounded"
+            style={{
+              maxWidth: "100%",
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              margin: "20px",
+            }}
+          >
+            <button className="btn-close float-end" onClick={closeModal}></button>
             {editingId ? (
               <>
                 <input
@@ -272,7 +281,7 @@ function StudyGuide() {
                     />
                   </div>
                 ))}
-                <div className="d-flex justify-content-between">
+                <div className="d-flex justify-content-between flex-wrap gap-2">
                   <button className="btn btn-success" onClick={saveEdit}>💾 Save</button>
                   <button className="btn btn-secondary" onClick={() => setEditingId(null)}>❌ Cancel</button>
                 </div>
@@ -282,7 +291,7 @@ function StudyGuide() {
                 <h2 className="fw-bold text-dark">{topics[modalIndex].title}</h2>
                 <h5 className="text-primary fst-italic">{topics[modalIndex].slides[slideIndex].subtitle}</h5>
                 <p className="lead lh-lg text-muted">{topics[modalIndex].slides[slideIndex].content}</p>
-                <div className="d-flex justify-content-between mt-5">
+                <div className="d-flex flex-column flex-md-row justify-content-between gap-2 mt-4">
                   <button
                     className="btn btn-outline-dark"
                     onClick={() => setSlideIndex((prev) => Math.max(0, prev - 1))}
@@ -295,7 +304,7 @@ function StudyGuide() {
                   >Next ➡</button>
                 </div>
                 {!openedTopics.includes(topics[modalIndex].id) && (
-                  <div className="text-center mt-3">
+                  <div className="mt-3">
                     <button
                       className="btn btn-outline-success"
                       onClick={() => setOpenedTopics((prev) => [...prev, topics[modalIndex].id])}
@@ -303,7 +312,7 @@ function StudyGuide() {
                   </div>
                 )}
                 {user?.role === "admin" && (
-                  <div className="d-flex justify-content-center gap-3 mt-4">
+                  <div className="d-flex justify-content-center gap-3 flex-wrap mt-4">
                     <button className="btn btn-sm btn-warning" onClick={startEdit}>✏️ Edit</button>
                     <button className="btn btn-sm btn-danger" onClick={deleteTopic}>🗑️ Delete</button>
                   </div>

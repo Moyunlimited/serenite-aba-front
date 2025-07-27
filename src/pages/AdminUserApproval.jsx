@@ -62,46 +62,49 @@ const AdminUserApproval = () => {
   }, [user]);
 
   if (!user || user.role !== "admin") {
-    return <div className="container mt-5">🚫 Admin access only</div>;
+    return <div className="container mt-5 text-center text-danger">🚫 Admin access only</div>;
   }
 
   return (
-    <div className="container mt-5">
-      <h2>Pending User Approvals</h2>
+    <div className="container py-5">
+      <h2 className="text-primary fw-bold text-center mb-4">Pending User Approvals</h2>
+
       {loading ? (
-        <p>Loading...</p>
+        <div className="text-center text-muted">Loading...</div>
       ) : error ? (
-        <p className="text-danger">{error}</p>
+        <div className="text-center text-danger">{error}</div>
       ) : pendingUsers.length === 0 ? (
-        <p>No pending users.</p>
+        <div className="text-center text-success">🎉 No pending users.</div>
       ) : (
-        <table className="table table-bordered mt-3">
-          <thead className="table-light">
-            <tr>
-              <th>ID</th>
-              <th>Email</th>
-              <th>Full Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pendingUsers.map((u) => (
-              <tr key={u.id}>
-                <td>{u.id}</td>
-                <td>{u.email}</td>
-                <td>{u.full_name}</td>
-                <td>
-                  <button
-                    className="btn btn-success btn-sm"
-                    onClick={() => approveUser(u.id)}
-                  >
-                    Approve
-                  </button>
-                </td>
+        <div className="table-responsive">
+          <table className="table table-bordered table-hover">
+            <thead className="table-light">
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Email</th>
+                <th scope="col">Full Name</th>
+                <th scope="col" className="text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {pendingUsers.map((u) => (
+                <tr key={u.id}>
+                  <td>{u.id}</td>
+                  <td style={{ wordBreak: "break-word" }}>{u.email}</td>
+                  <td style={{ wordBreak: "break-word" }}>{u.full_name}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() => approveUser(u.id)}
+                    >
+                      ✅ Approve
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );

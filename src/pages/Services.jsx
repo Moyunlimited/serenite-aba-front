@@ -11,8 +11,8 @@ function Services() {
       }}
     >
       <div className="container">
-        <h2 className="mb-4 text-center text-primary">Schedule Your Appointment</h2>
-        <p className="mb-5 text-center text-secondary">
+        <h2 className="mb-4 text-center text-primary fw-bold">Schedule Your Appointment</h2>
+        <p className="mb-5 text-center text-secondary fs-5">
           Select from our flexible options to get the right support for your RBT journey.
         </p>
 
@@ -21,13 +21,13 @@ function Services() {
           <div className="col">
             <div className="card h-100 shadow-sm border-0">
               <div className="card-body text-center">
-                <h5 className="card-title">Free Consultation</h5>
-                <p className="card-text">
+                <h5 className="card-title fw-semibold text-primary">Free Consultation</h5>
+                <p className="card-text text-muted">
                   15-minute phone call to discuss your goals and how we can help.
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/your-free-consultation"
+                  href="https://calendly.com/loudjy96"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -41,13 +41,13 @@ function Services() {
           <div className="col">
             <div className="card h-100 shadow-sm border-0">
               <div className="card-body text-center">
-                <h5 className="card-title">Basic Service - $300</h5>
-                <p className="card-text">
+                <h5 className="card-title fw-semibold text-primary">Basic Service - $300</h5>
+                <p className="card-text text-muted">
                   6 sessions via Zoom with a personalized study plan and exam tips.
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/your-basic-service"
+                  href="https://calendly.com/loudjy96"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -61,13 +61,13 @@ function Services() {
           <div className="col">
             <div className="card h-100 shadow-sm border-0">
               <div className="card-body text-center">
-                <h5 className="card-title">Advanced Service - $500</h5>
-                <p className="card-text">
+                <h5 className="card-title fw-semibold text-primary">Advanced Service - $500</h5>
+                <p className="card-text text-muted">
                   Full support: mock exam, competency prep, job guidance, resume & cover letter help.
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/your-advanced-service"
+                  href="https://calendly.com/loudjy96"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -76,6 +76,14 @@ function Services() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Optional: Add contact/help CTA */}
+        <div className="text-center mt-5">
+          <p className="text-muted">
+            Need help choosing a plan?{" "}
+            <a href="/contact" className="text-primary fw-semibold">Contact us</a>
+          </p>
         </div>
       </div>
     </div>

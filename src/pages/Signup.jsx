@@ -33,6 +33,7 @@ function Signup() {
       if (res.ok) {
         setMsg(data.msg);
         setForm({ email: "", password: "", full_name: "" });
+        setTimeout(() => navigate("/login"), 2000); // Redirect after signup
       } else {
         setError(data.msg || "Signup failed");
       }
@@ -47,20 +48,31 @@ function Signup() {
       className="d-flex align-items-center justify-content-center"
       style={{
         minHeight: "100vh",
-        background: "linear-gradient(to right, #f0f4f8, #d9f2ec)",
-        padding: "2rem",
+        background: "linear-gradient(to right, #e3fdfd, #fcfefe, #a6e3e9)",
+        padding: "1rem",
       }}
     >
-      <div className="card shadow p-4 w-100" style={{ maxWidth: "500px" }}>
+      <div
+        className="card shadow-lg p-4 p-md-5 w-100"
+        style={{
+          maxWidth: "450px",
+          borderRadius: "16px",
+          background: "rgba(255, 255, 255, 0.95)",
+        }}
+      >
+        {/* Logo */}
         <div className="text-center mb-3">
           <img src="/logo.png" alt="Logo" style={{ maxHeight: "70px" }} />
         </div>
 
-        <h3 className="text-center mb-4 text-primary">Create Your Account</h3>
+        <h3 className="text-center mb-4 text-primary fw-bold">
+          Create Your Account
+        </h3>
 
         <form onSubmit={handleSubmit}>
+          {/* Full Name */}
           <div className="mb-3">
-            <label className="form-label">Full Name</label>
+            <label className="form-label fw-semibold">Full Name</label>
             <input
               name="full_name"
               placeholder="Your full name"
@@ -71,8 +83,9 @@ function Signup() {
             />
           </div>
 
+          {/* Email */}
           <div className="mb-3">
-            <label className="form-label">Email</label>
+            <label className="form-label fw-semibold">Email</label>
             <input
               name="email"
               type="email"
@@ -84,8 +97,9 @@ function Signup() {
             />
           </div>
 
+          {/* Password */}
           <div className="mb-3">
-            <label className="form-label">Password</label>
+            <label className="form-label fw-semibold">Password</label>
             <div className="input-group">
               <input
                 name="password"
@@ -106,18 +120,21 @@ function Signup() {
             </div>
           </div>
 
-          <button className="btn btn-primary w-100 mt-2">Sign Up</button>
+          {/* Submit */}
+          <button className="btn btn-primary w-100 mt-3 py-2">Sign Up</button>
         </form>
 
+        {/* Login Link */}
         <div className="text-center mt-3">
           <small>
             Already have an account?{" "}
-            <Link to="/login" className="text-decoration-none">
+            <Link to="/login" className="text-decoration-none fw-semibold">
               Login here
             </Link>
           </small>
         </div>
 
+        {/* Alerts */}
         {msg && <div className="alert alert-success mt-3">{msg}</div>}
         {error && <div className="alert alert-danger mt-3">{error}</div>}
       </div>

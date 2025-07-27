@@ -5,9 +5,18 @@ function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+  // Collapse menu on mobile after link click
+  const collapseMenu = () => {
+    const collapseEl = document.getElementById("navbarNav");
+    if (collapseEl && collapseEl.classList.contains("show")) {
+      new window.bootstrap.Collapse(collapseEl).hide();
+    }
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
+    collapseMenu(); // Also close menu
   };
 
   const links = [
@@ -34,6 +43,7 @@ function Navbar() {
         <Link
           className="navbar-brand position-relative"
           to="/"
+          onClick={collapseMenu}
           style={{
             paddingTop: 0,
             paddingBottom: 0,
@@ -55,7 +65,7 @@ function Navbar() {
           />
         </Link>
 
-        {/* Toggle button */}
+        {/* Toggler */}
         <button
           className="navbar-toggler"
           type="button"
@@ -68,7 +78,7 @@ function Navbar() {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Navbar content */}
+        {/* Links */}
         <div className="collapse navbar-collapse mt-3 mt-lg-0" id="navbarNav">
           <ul className="navbar-nav ms-auto align-items-lg-center w-100 justify-content-end flex-wrap gap-2">
             {links.map((item, index) => (
@@ -76,6 +86,7 @@ function Navbar() {
                 <Link
                   className="nav-link text-dark px-3"
                   to={item.path}
+                  onClick={collapseMenu}
                   style={{ fontSize: "1.05rem", fontWeight: "500" }}
                 >
                   {item.name}
@@ -88,6 +99,7 @@ function Navbar() {
                 <Link
                   className="nav-link text-dark px-3"
                   to="/quiz"
+                  onClick={collapseMenu}
                   style={{ fontSize: "1.05rem", fontWeight: "500" }}
                 >
                   {user.role === "admin" ? "Manage Quizzes" : "Quizzes"}
@@ -100,6 +112,7 @@ function Navbar() {
                 <Link
                   className="nav-link text-dark px-3"
                   to="/approve"
+                  onClick={collapseMenu}
                   style={{ fontSize: "1.05rem", fontWeight: "500" }}
                 >
                   Approve Users
@@ -138,6 +151,7 @@ function Navbar() {
                   <Link
                     className="nav-link text-dark px-3"
                     to="/login"
+                    onClick={collapseMenu}
                     style={{ fontSize: "1.05rem", fontWeight: "500" }}
                   >
                     Login
@@ -147,6 +161,7 @@ function Navbar() {
                   <Link
                     className="nav-link text-dark px-3"
                     to="/signup"
+                    onClick={collapseMenu}
                     style={{ fontSize: "1.05rem", fontWeight: "500" }}
                   >
                     Sign Up

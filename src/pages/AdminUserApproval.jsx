@@ -10,7 +10,7 @@ const AdminUserApproval = () => {
 
   const fetchPendingUsers = async () => {
     try {
-      const res = await fetch(`${API_BASE}/auth/pending-users`, {
+      const res = await fetch(`${API_BASE}/api/auth/pending-users`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -34,7 +34,7 @@ const AdminUserApproval = () => {
 
   const approveUser = async (userId) => {
     try {
-      const res = await fetch(`${API_BASE}/auth/approve-user/${userId}`, {
+      const res = await fetch(`${API_BASE}/api/auth/approve-user/${userId}`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${user.token}`,

@@ -131,16 +131,62 @@ function Quizzes() {
           )}
         </div>
 
-        {/* Quiz creation, list, question handling, and result logic stays unchanged... */}
+        {/* ✅ Admin-only Create/Edit Form */}
+        {user?.role === "admin" && (
+          <div className="mb-5">
+            <h4>{editingQuizId ? "✏️ Edit Quiz" : "➕ Create New Quiz"}</h4>
+            <form onSubmit={handleCreateQuiz}>
+              <input className="form-control mb-2" placeholder="Quiz Title" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} required />
+              {questions.map((q, idx) => (
+                <div key={idx} className="border p-3 mb-3 rounded">
+                  <label>Question {idx + 1}</label>
+                  <input className="form-control mb-2" value={q.question} onChange={(e) => handleQuestionChange(idx, "question", e.target.value)} placeholder="Enter question" />
+                  {q.options.map((opt, i) => (
+                    <input key={i} className="form-control mb-1" placeholder={`Option ${i + 1}`} value={opt} onChange={(e) => handleOptionChange(idx, i, e.target.value)} />
+                  ))}
+                  <input className="form-control mt-2" placeholder="Correct Answer" value={q.answer} onChange={(e) => handleQuestionChange(idx, "answer", e.target.value)} />
+                </div>
+              ))}
+              <button className="btn btn-success">Save Quiz</button>
+            </form>
+          </div>
+        )}
 
+        {/* ✅ List of Quizzes */}
+        <h4 className="mb-3">Available Quizzes</h4>
+        <div className="list-group mb-5">
+          {quizzes.map((quiz) => (
+            <div key={quiz.id} className="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{quiz.title}</strong>
+                {getProgressForQuiz(quiz.id) && (
+                  <span className="badge bg-success ms-2">
+                    {getProgressForQuiz(quiz.id).score}/{getProgressForQuiz(quiz.id).total}
+                  </span>
+                )}
+              </div>
+              <div>
+                <button className="btn btn-sm btn-primary me-2" onClick={() => startQuiz(quiz)}>Start</button>
+                {user?.role === "admin" && (
+                  <>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(quiz)}>Edit</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(quiz.id)}>Delete</button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ✅ Quiz Taking & Results */}
         {selectedQuiz && (
-          <div className="card shadow-lg mt-5">
+          <div className="card shadow-lg">
             <div className="card-header text-white bg-primary">
               <strong>{selectedQuiz.title}</strong>
             </div>
             <div className="card-body">
               {!showResults ? (
-                <div>
+                <>
                   <p><strong>Q{currentQ + 1}:</strong> {selectedQuiz.questions[currentQ].question}</p>
                   {selectedQuiz.questions[currentQ].options.map((opt, i) => (
                     <div key={i} className="form-check mb-2">
@@ -182,9 +228,9 @@ function Quizzes() {
                       }
                     }
                   }}>{currentQ + 1 === selectedQuiz.questions.length ? "Submit Quiz" : "Next"}</button>
-                </div>
+                </>
               ) : (
-                <div>
+                <>
                   <h5 className="text-success">Results</h5>
                   <p>Score: {score} / {selectedQuiz.questions.length}</p>
                   {selectedQuiz.questions.map((q, i) => (
@@ -195,7 +241,7 @@ function Quizzes() {
                     </div>
                   ))}
                   <button className="btn btn-secondary mt-3" onClick={() => setSelectedQuiz(null)}>Back to Quizzes</button>
-                </div>
+                </>
               )}
             </div>
           </div>

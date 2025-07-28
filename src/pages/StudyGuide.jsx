@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../index.css";
 import API_BASE from "../config";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 function StudyGuide() {
   const { user } = useAuth();
@@ -111,9 +113,9 @@ function StudyGuide() {
     });
   };
 
-  const handleEditChange = (e, index, field) => {
+  const handleEditChange = (index, value) => {
     const updatedSlides = [...editForm.slides];
-    updatedSlides[index][field] = e.target.value;
+    updatedSlides[index].content = value;
     setEditForm({ ...editForm, slides: updatedSlides });
   };
 
@@ -141,69 +143,20 @@ function StudyGuide() {
     }
   };
 
-  const deleteTopic = async () => {
-    const topic = topics[modalIndex];
-    if (!window.confirm("Are you sure you want to delete this topic?")) return;
-    const res = await fetch(`${API_BASE}/api/guide/${topic.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-      },
-    });
-
-    if (res.ok) {
-      setTopics(topics.filter((t) => t.id !== topic.id));
-      closeModal();
-    } else {
-      alert("Failed to delete topic");
-    }
-  };
-
   return (
-    <div className="container my-5 p-3 p-md-4 rounded" style={{ background: "linear-gradient(to right, #eef2f3, #8e9eab)" }}>
-      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
-        <h2 className="fw-bold mb-3 mb-md-0">
-          <span role="img" aria-label="book">📘</span> Study Guide
-        </h2>
-        <div className="text-end mt-2 mt-md-0">
-          <div className="position-relative d-inline-block mx-auto d-block d-md-inline-block">
-            <svg width="60" height="60">
-              <circle cx="30" cy="30" r="26" fill="none" stroke="#dee2e6" strokeWidth="6" />
-              <circle
-                cx="30"
-                cy="30"
-                r="26"
-                fill="none"
-                stroke="#0d6efd"
-                strokeWidth="6"
-                strokeDasharray={2 * Math.PI * 26}
-                strokeDashoffset={(1 - openedTopics.length / topics.length) * 2 * Math.PI * 26}
-                transform="rotate(-90 30 30)"
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="position-absolute top-50 start-50 translate-middle text-primary fw-semibold">
-              {openedTopics.length}/{topics.length}
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="container">
       {user?.role === "admin" && (
-        <form className="mb-5" onSubmit={handleSubmit}>
-          <h5 className="fw-semibold">Add New Topic</h5>
-          <div className="mb-3">
-            <input
-              name="title"
-              placeholder="Topic Title"
-              className="form-control"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          <h3>Add New Topic</h3>
+          <input
+            className="form-control mb-3"
+            placeholder="Title"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            required
+          />
           {form.slides.map((slide, index) => (
-            <div className="mb-3" key={index}>
+            <div key={index} className="mb-3">
               <input
                 className="form-control mb-2"
                 placeholder={`Subtitle ${index + 1}`}
@@ -211,34 +164,31 @@ function StudyGuide() {
                 onChange={(e) => handleFormChange(e, index, "subtitle")}
                 required
               />
-              <textarea
-                className="form-control"
-                rows={3}
-                placeholder={`Slide ${index + 1} Content`}
+              <ReactQuill
+                theme="snow"
                 value={slide.content}
-                onChange={(e) => handleFormChange(e, index, "content")}
-                required
+                onChange={(value) => {
+                  const newSlides = [...form.slides];
+                  newSlides[index].content = value;
+                  setForm({ ...form, slides: newSlides });
+                }}
               />
             </div>
           ))}
-          <button type="button" className="btn btn-outline-secondary mb-3" onClick={addSlideField}>
-            ➕ Add Slide
-          </button>
+          <button type="button" onClick={addSlideField} className="btn btn-outline-secondary mb-3">Add Slide</button>
           <br />
-          <button className="btn btn-primary" type="submit">
-            ✅ Add Topic
-          </button>
+          <button className="btn btn-primary" type="submit">Submit</button>
         </form>
       )}
 
+      <hr />
+
       <div className="row">
         {topics.map((topic, index) => (
-          <div className="col-12 col-md-6 col-lg-4 mb-4" key={topic.id}>
-            <div className="card shadow slide-card h-100" onClick={() => openModal(index)}>
-              <div className="card-body d-flex justify-content-center align-items-center">
-                <h5 className="card-title text-center fw-semibold m-0">
-                  {index + 1}. {topic.title} {openedTopics.includes(topic.id) && <span className="text-success">✅</span>}
-                </h5>
+          <div key={topic.id} className="col-md-4 mb-3">
+            <div className="card" onClick={() => openModal(index)}>
+              <div className="card-body">
+                <h5 className="card-title">{topic.title}</h5>
               </div>
             </div>
           </div>
@@ -246,79 +196,62 @@ function StudyGuide() {
       </div>
 
       {modalIndex !== null && (
-        <div className="slide-modal d-flex justify-content-center align-items-center">
-          <div
-            className="slide-content bg-white shadow-lg p-4 rounded"
-            style={{
-              maxWidth: "100%",
-              width: "100%",
-              maxHeight: "90vh",
-              overflowY: "auto",
-              margin: "20px",
-            }}
-          >
-            <button className="btn-close float-end" onClick={closeModal}></button>
-            {editingId ? (
-              <>
-                <input
-                  className="form-control mb-2"
-                  value={editForm.title}
-                  onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                />
-                {editForm.slides.map((slide, idx) => (
-                  <div key={idx} className="mb-2">
-                    <input
-                      className="form-control mb-1"
-                      placeholder="Subtitle"
-                      value={slide.subtitle}
-                      onChange={(e) => handleEditChange(e, idx, "subtitle")}
-                    />
-                    <textarea
-                      className="form-control"
-                      rows={3}
-                      value={slide.content}
-                      onChange={(e) => handleEditChange(e, idx, "content")}
-                    />
-                  </div>
-                ))}
-                <div className="d-flex justify-content-between flex-wrap gap-2">
-                  <button className="btn btn-success" onClick={saveEdit}>💾 Save</button>
-                  <button className="btn btn-secondary" onClick={() => setEditingId(null)}>❌ Cancel</button>
-                </div>
-              </>
-            ) : (
-              <div className="text-center">
-                <h2 className="fw-bold text-dark">{topics[modalIndex].title}</h2>
-                <h5 className="text-primary fst-italic">{topics[modalIndex].slides[slideIndex].subtitle}</h5>
-                <p className="lead lh-lg text-muted">{topics[modalIndex].slides[slideIndex].content}</p>
-                <div className="d-flex flex-column flex-md-row justify-content-between gap-2 mt-4">
-                  <button
-                    className="btn btn-outline-dark"
-                    onClick={() => setSlideIndex((prev) => Math.max(0, prev - 1))}
-                    disabled={slideIndex === 0}
-                  >⬅ Previous</button>
-                  <button
-                    className="btn btn-outline-dark"
-                    onClick={() => setSlideIndex((prev) => Math.min(topics[modalIndex].slides.length - 1, prev + 1))}
-                    disabled={slideIndex === topics[modalIndex].slides.length - 1}
-                  >Next ➡</button>
-                </div>
-                {!openedTopics.includes(topics[modalIndex].id) && (
-                  <div className="mt-3">
-                    <button
-                      className="btn btn-outline-success"
-                      onClick={() => setOpenedTopics((prev) => [...prev, topics[modalIndex].id])}
-                    >✅ Mark as Done</button>
-                  </div>
-                )}
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">{topics[modalIndex].title}</h5>
+                <button type="button" className="btn-close" onClick={closeModal}></button>
+              </div>
+              <div className="modal-body">
+                <h6>{topics[modalIndex].slides[slideIndex].subtitle}</h6>
+                <div dangerouslySetInnerHTML={{ __html: topics[modalIndex].slides[slideIndex].content }} />
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))}
+                  disabled={slideIndex === 0}
+                >Previous</button>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setSlideIndex(Math.min(topics[modalIndex].slides.length - 1, slideIndex + 1))}
+                  disabled={slideIndex === topics[modalIndex].slides.length - 1}
+                >Next</button>
                 {user?.role === "admin" && (
-                  <div className="d-flex justify-content-center gap-3 flex-wrap mt-4">
-                    <button className="btn btn-sm btn-warning" onClick={startEdit}>✏️ Edit</button>
-                    <button className="btn btn-sm btn-danger" onClick={deleteTopic}>🗑️ Delete</button>
-                  </div>
+                  <button className="btn btn-warning" onClick={startEdit}>Edit</button>
                 )}
               </div>
-            )}
+              {editingId && (
+                <div className="p-3">
+                  <input
+                    className="form-control mb-2"
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                  />
+                  {editForm.slides.map((slide, idx) => (
+                    <div key={idx} className="mb-2">
+                      <input
+                        className="form-control mb-1"
+                        placeholder="Subtitle"
+                        value={slide.subtitle}
+                        onChange={(e) => {
+                          const updated = [...editForm.slides];
+                          updated[idx].subtitle = e.target.value;
+                          setEditForm({ ...editForm, slides: updated });
+                        }}
+                      />
+                      <ReactQuill
+                        theme="snow"
+                        value={slide.content}
+                        onChange={(value) => handleEditChange(idx, value)}
+                      />
+                    </div>
+                  ))}
+                  <button className="btn btn-success" onClick={saveEdit}>Save</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

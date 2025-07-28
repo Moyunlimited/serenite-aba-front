@@ -230,7 +230,7 @@ function StudyGuide() {
                     onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                   />
                   {editForm.slides.map((slide, idx) => (
-                    <div key={idx} className="mb-2">
+                    <div key={idx} className="mb-2 border p-2">
                       <input
                         className="form-control mb-1"
                         placeholder="Subtitle"
@@ -246,9 +246,18 @@ function StudyGuide() {
                         value={slide.content}
                         onChange={(value) => handleEditChange(idx, value)}
                       />
+                      <button
+                        className="btn btn-sm btn-danger mt-2"
+                        onClick={() => {
+                          const updatedSlides = editForm.slides.filter((_, i) => i !== idx);
+                          setEditForm({ ...editForm, slides: updatedSlides });
+                        }}
+                      >
+                        Delete Slide
+                      </button>
                     </div>
                   ))}
-                  <button className="btn btn-success" onClick={saveEdit}>Save</button>
+                  <button className="btn btn-success mt-3" onClick={saveEdit}>Save</button>
                 </div>
               )}
             </div>
@@ -260,4 +269,3 @@ function StudyGuide() {
 }
 
 export default StudyGuide;
-

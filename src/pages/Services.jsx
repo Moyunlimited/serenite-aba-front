@@ -27,7 +27,7 @@ function Services() {
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/loudjy96"
+                  href="https://calendly.com/loudjy96/15-minutes-free-call"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -47,7 +47,7 @@ function Services() {
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/loudjy96"
+                  href="https://calendly.com/loudjy96/basic-service-300"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -67,7 +67,7 @@ function Services() {
                 </p>
                 <a
                   className="btn btn-outline-primary w-100"
-                  href="https://calendly.com/loudjy96"
+                  href="https://calendly.com/loudjy96/advanced-service-500"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

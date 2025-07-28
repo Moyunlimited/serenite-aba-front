@@ -1,16 +1,26 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { useNavigate } from "react-router-dom";
 import "../index.css";
 import API_BASE from "../config";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 
+const modules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ["bold", "italic", "underline", "strike"],
+    [{ color: [] }, { background: [] }],
+    [{ list: "ordered" }, { list: "bullet" }],
+    ["link"],
+    ["clean"],
+  ],
+};
+
 function StudyGuide() {
   const { user } = useAuth();
-  const navigate = useNavigate(); // ✅ Initialize navigate
+  const navigate = useNavigate();
 
-  // ✅ Redirect if not logged in
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -181,57 +191,28 @@ function StudyGuide() {
   };
 
   return (
-    <div
-      style={{
-        marginTop: "80px",
-        background: "linear-gradient(to right, #f9f9f9, #e0f7fa)",
-        paddingBottom: "60px",
-        minHeight: "100vh",
-      }}
-    >
+    <div style={{ marginTop: "80px", background: "linear-gradient(to right, #f9f9f9, #e0f7fa)", paddingBottom: "60px", minHeight: "100vh" }}>
       <div className="container">
         <h2 className="text-center text-dark mb-4">📚 Study Guide</h2>
         {user?.role === "admin" && (
           <form onSubmit={handleSubmit}>
             <h3 className="text-primary mb-4">Add New Topic</h3>
-            <ReactQuill
-              theme="snow"
-              value={form.title}
-              onChange={(value) => setForm({ ...form, title: value })}
-            />
+            <ReactQuill theme="snow" value={form.title} onChange={(value) => setForm({ ...form, title: value })} modules={modules} />
             {form.slides.map((slide, index) => (
               <div key={index} className="mb-3 border p-3 bg-white rounded">
-                <ReactQuill
-                  theme="snow"
-                  value={slide.subtitle}
-                  onChange={(value) => handleFormChange(value, index, "subtitle")}
-                />
-                <ReactQuill
-                  theme="snow"
-                  value={slide.content}
-                  onChange={(value) => handleFormChange(value, index, "content")}
-                />
+                <ReactQuill theme="snow" value={slide.subtitle} onChange={(value) => handleFormChange(value, index, "subtitle")} modules={modules} />
+                <ReactQuill theme="snow" value={slide.content} onChange={(value) => handleFormChange(value, index, "content")} modules={modules} />
                 {form.slides.length > 1 && (
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-danger mt-2"
-                    onClick={() => {
-                      const updatedSlides = form.slides.filter((_, i) => i !== index);
-                      setForm({ ...form, slides: updatedSlides });
-                    }}
-                  >
-                    Delete
-                  </button>
+                  <button type="button" className="btn btn-sm btn-danger mt-2" onClick={() => {
+                    const updatedSlides = form.slides.filter((_, i) => i !== index);
+                    setForm({ ...form, slides: updatedSlides });
+                  }}>Delete</button>
                 )}
               </div>
             ))}
-            <button type="button" onClick={addSlideField} className="btn btn-outline-secondary mb-3">
-              Add Slide
-            </button>
+            <button type="button" onClick={addSlideField} className="btn btn-outline-secondary mb-3">Add Slide</button>
             <br />
-            <button className="btn btn-primary" type="submit">
-              Submit
-            </button>
+            <button className="btn btn-primary" type="submit">Submit</button>
           </form>
         )}
 
@@ -262,20 +243,8 @@ function StudyGuide() {
                   <div dangerouslySetInnerHTML={{ __html: topics[modalIndex].slides[slideIndex].content }} />
                 </div>
                 <div className="modal-footer">
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))}
-                    disabled={slideIndex === 0}
-                  >
-                    Previous
-                  </button>
-                  <button
-                    className="btn btn-outline-secondary"
-                    onClick={() => setSlideIndex(Math.min(topics[modalIndex].slides.length - 1, slideIndex + 1))}
-                    disabled={slideIndex === topics[modalIndex].slides.length - 1}
-                  >
-                    Next
-                  </button>
+                  <button className="btn btn-outline-secondary" onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))} disabled={slideIndex === 0}>Previous</button>
+                  <button className="btn btn-outline-secondary" onClick={() => setSlideIndex(Math.min(topics[modalIndex].slides.length - 1, slideIndex + 1))} disabled={slideIndex === topics[modalIndex].slides.length - 1}>Next</button>
                   {user?.role === "admin" && (
                     <>
                       <button className="btn btn-warning me-2" onClick={startEdit}>Edit</button>
@@ -285,42 +254,22 @@ function StudyGuide() {
                 </div>
                 {editingId && (
                   <div className="p-3">
-                    <ReactQuill
-                      theme="snow"
-                      value={editForm.title}
-                      onChange={(value) => setEditForm({ ...editForm, title: value })}
-                    />
+                    <ReactQuill theme="snow" value={editForm.title} onChange={(value) => setEditForm({ ...editForm, title: value })} modules={modules} />
                     {editForm.slides.map((slide, idx) => (
                       <div key={idx} className="mb-3 border p-3 bg-white rounded">
-                        <ReactQuill
-                          theme="snow"
-                          value={slide.subtitle}
-                          onChange={(value) => {
-                            const updated = [...editForm.slides];
-                            updated[idx].subtitle = value;
-                            setEditForm({ ...editForm, slides: updated });
-                          }}
-                        />
-                        <ReactQuill
-                          theme="snow"
-                          value={slide.content}
-                          onChange={(value) => handleEditChange(idx, value)}
-                        />
+                        <ReactQuill theme="snow" value={slide.subtitle} onChange={(value) => {
+                          const updated = [...editForm.slides];
+                          updated[idx].subtitle = value;
+                          setEditForm({ ...editForm, slides: updated });
+                        }} modules={modules} />
+                        <ReactQuill theme="snow" value={slide.content} onChange={(value) => handleEditChange(idx, value)} modules={modules} />
                         {editForm.slides.length > 1 && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-danger mt-2"
-                            onClick={() => deleteEditSlide(idx)}
-                          >
-                            Delete
-                          </button>
+                          <button type="button" className="btn btn-sm btn-danger mt-2" onClick={() => deleteEditSlide(idx)}>Delete</button>
                         )}
                       </div>
                     ))}
                     <button className="btn btn-secondary me-2" type="button" onClick={addEditSlide}>Add Subtitle</button>
-                    <button className="btn btn-success" onClick={saveEdit}>
-                      Save Changes
-                    </button>
+                    <button className="btn btn-success" onClick={saveEdit}>Save Changes</button>
                   </div>
                 )}
               </div>

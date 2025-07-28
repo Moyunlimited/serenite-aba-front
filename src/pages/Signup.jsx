@@ -26,14 +26,17 @@ function Signup() {
       const res = await fetch(`${API_BASE}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({
+          ...form,
+          email: form.email.toLowerCase().trim(),
+        }),
       });
 
       const data = await res.json();
       if (res.ok) {
         setMsg(data.msg);
         setForm({ email: "", password: "", full_name: "" });
-        setTimeout(() => navigate("/login"), 2000); // Redirect after signup
+        setTimeout(() => navigate("/login"), 2000);
       } else {
         setError(data.msg || "Signup failed");
       }

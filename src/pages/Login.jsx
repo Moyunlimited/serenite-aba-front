@@ -9,7 +9,8 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(form.email, form.password);
+    const emailLowered = form.email.trim().toLowerCase(); // normalize email
+    const success = await login(emailLowered, form.password);
     if (success) navigate("/");
   };
 

@@ -105,19 +105,75 @@ function StudyGuide() {
     }
   };
 
+  const startEdit = () => {
+    const topic = topics[modalIndex];
+    setEditingId(topic.id);
+    setEditForm({
+      title: topic.title,
+      slides: topic.slides.map((s) => ({ ...s })),
+    });
+  };
+
+  const handleEditChange = (index, value) => {
+    const updatedSlides = [...editForm.slides];
+    updatedSlides[index].content = value;
+    setEditForm({ ...editForm, slides: updatedSlides });
+  };
+
+  const saveEdit = async () => {
+    const content = editForm.slides.map((s) => `${s.subtitle}\n${s.content}`).join("\n\n");
+    const res = await fetch(`${API_BASE}/api/guide/${editingId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user?.token}`,
+      },
+      body: JSON.stringify({ title: editForm.title, content }),
+    });
+
+    if (res.ok) {
+      const updated = await res.json();
+      updated.slides = updated.content.split("\n\n").map((block) => {
+        const [subtitle, ...content] = block.split("\n");
+        return { subtitle, content: content.join(" ") };
+      });
+      setTopics(topics.map((t) => (t.id === editingId ? updated : t)));
+      setEditingId(null);
+    } else {
+      alert("Failed to update topic");
+    }
+  };
+
+  const handleDeleteTopic = async () => {
+    const id = topics[modalIndex].id;
+    const res = await fetch(`${API_BASE}/api/guide/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+      },
+    });
+
+    if (res.ok) {
+      setTopics(topics.filter((t) => t.id !== id));
+      closeModal();
+    } else {
+      alert("Failed to delete topic");
+    }
+  };
+
   return (
     <div
       style={{
+        marginTop: "80px",
         background: "linear-gradient(to right, #f9f9f9, #e0f7fa)",
-        paddingTop: "80px",
         paddingBottom: "60px",
-        minHeight: "100vh"
+        minHeight: "100vh",
       }}
     >
       <div className="container">
         {user?.role === "admin" && (
           <form onSubmit={handleSubmit}>
-            <h3 className="text-primary fw-bold mb-4">Add New Topic</h3>
+            <h3 className="text-primary mb-4">Add New Topic</h3>
             <input
               className="form-control mb-3"
               placeholder="Title"
@@ -126,7 +182,7 @@ function StudyGuide() {
               required
             />
             {form.slides.map((slide, index) => (
-              <div key={index} className="mb-3 border p-3 bg-white rounded shadow-sm">
+              <div key={index} className="mb-3 border p-3 bg-white rounded">
                 <input
                   className="form-control mb-2"
                   placeholder={`Subtitle ${index + 1}`}
@@ -157,11 +213,7 @@ function StudyGuide() {
                 )}
               </div>
             ))}
-            <button
-              type="button"
-              onClick={addSlideField}
-              className="btn btn-outline-secondary mb-3"
-            >
+            <button type="button" onClick={addSlideField} className="btn btn-outline-secondary mb-3">
               Add Slide
             </button>
             <br />
@@ -171,19 +223,89 @@ function StudyGuide() {
           </form>
         )}
 
-        <hr className="my-5" />
+        <hr />
 
         <div className="row">
           {topics.map((topic, index) => (
             <div key={topic.id} className="col-md-4 mb-3">
-              <div className="card h-100 shadow-sm" onClick={() => openModal(index)}>
+              <div className="card" onClick={() => openModal(index)}>
                 <div className="card-body">
-                  <h5 className="card-title text-primary">{topic.title}</h5>
+                  <h5 className="card-title">{topic.title}</h5>
                 </div>
               </div>
             </div>
           ))}
         </div>
+
+        {modalIndex !== null && (
+          <div className="modal show d-block" tabIndex="-1">
+            <div className="modal-dialog modal-lg">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title">{topics[modalIndex].title}</h5>
+                  <button type="button" className="btn-close" onClick={closeModal}></button>
+                </div>
+                <div className="modal-body">
+                  <h6>{topics[modalIndex].slides[slideIndex].subtitle}</h6>
+                  <div dangerouslySetInnerHTML={{ __html: topics[modalIndex].slides[slideIndex].content }} />
+                </div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => setSlideIndex(Math.max(0, slideIndex - 1))}
+                    disabled={slideIndex === 0}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="btn btn-outline-secondary"
+                    onClick={() => setSlideIndex(Math.min(topics[modalIndex].slides.length - 1, slideIndex + 1))}
+                    disabled={slideIndex === topics[modalIndex].slides.length - 1}
+                  >
+                    Next
+                  </button>
+                  {user?.role === "admin" && (
+                    <>
+                      <button className="btn btn-warning me-2" onClick={startEdit}>Edit</button>
+                      <button className="btn btn-danger" onClick={handleDeleteTopic}>Delete Topic</button>
+                    </>
+                  )}
+                </div>
+                {editingId && (
+                  <div className="p-3">
+                    <input
+                      className="form-control mb-2"
+                      value={editForm.title}
+                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    />
+                    {editForm.slides.map((slide, idx) => (
+                      <div key={idx} className="mb-3 border p-3 bg-white rounded">
+                        <input
+                          className="form-control mb-2"
+                          placeholder="Subtitle"
+                          value={slide.subtitle}
+                          onChange={(e) => {
+                            const updated = [...editForm.slides];
+                            updated[idx].subtitle = e.target.value;
+                            setEditForm({ ...editForm, slides: updated });
+                          }}
+                        />
+                        <ReactQuill
+                          theme="snow"
+                          value={slide.content}
+                          onChange={(value) => handleEditChange(idx, value)}
+                        />
+                      </div>
+                    ))}
+                    <button className="btn btn-success" onClick={saveEdit}>
+                      Save Changes
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

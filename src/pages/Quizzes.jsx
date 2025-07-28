@@ -98,12 +98,6 @@ function Quizzes() {
     setShowResults(false);
   };
 
-  const retakeQuiz = () => {
-    if (selectedQuiz) {
-      startQuiz(selectedQuiz);
-    }
-  };
-
   const getProgressForQuiz = (quizId) => {
     return progress.find((p) => p.quiz_id === quizId);
   };
@@ -137,8 +131,54 @@ function Quizzes() {
           )}
         </div>
 
-        {/* ...Admin Form & List Rendered As Before... */}
+        {/* ✅ Admin-only Create/Edit Form */}
+        {user?.role === "admin" && (
+          <div className="mb-5">
+            <h4>{editingQuizId ? "✏️ Edit Quiz" : "➕ Create New Quiz"}</h4>
+            <form onSubmit={handleCreateQuiz}>
+              <input className="form-control mb-2" placeholder="Quiz Title" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} required />
+              {questions.map((q, idx) => (
+                <div key={idx} className="border p-3 mb-3 rounded">
+                  <label>Question {idx + 1}</label>
+                  <input className="form-control mb-2" value={q.question} onChange={(e) => handleQuestionChange(idx, "question", e.target.value)} placeholder="Enter question" />
+                  {q.options.map((opt, i) => (
+                    <input key={i} className="form-control mb-1" placeholder={`Option ${i + 1}`} value={opt} onChange={(e) => handleOptionChange(idx, i, e.target.value)} />
+                  ))}
+                  <input className="form-control mt-2" placeholder="Correct Answer" value={q.answer} onChange={(e) => handleQuestionChange(idx, "answer", e.target.value)} />
+                </div>
+              ))}
+              <button className="btn btn-success">Save Quiz</button>
+            </form>
+          </div>
+        )}
 
+        {/* ✅ List of Quizzes */}
+        <h4 className="mb-3">Available Quizzes</h4>
+        <div className="list-group mb-5">
+          {quizzes.map((quiz) => (
+            <div key={quiz.id} className="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{quiz.title}</strong>
+                {getProgressForQuiz(quiz.id) && (
+                  <span className="badge bg-success ms-2">
+                    {getProgressForQuiz(quiz.id).score}/{getProgressForQuiz(quiz.id).total}
+                  </span>
+                )}
+              </div>
+              <div>
+                <button className="btn btn-sm btn-primary me-2" onClick={() => startQuiz(quiz)}>Start</button>
+                {user?.role === "admin" && (
+                  <>
+                    <button className="btn btn-sm btn-warning me-2" onClick={() => handleEdit(quiz)}>Edit</button>
+                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(quiz.id)}>Delete</button>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ✅ Quiz Taking & Results */}
         {selectedQuiz && (
           <div className="card shadow-lg">
             <div className="card-header text-white bg-primary">
@@ -200,9 +240,9 @@ function Quizzes() {
                       Correct Answer: {q.answer}
                     </div>
                   ))}
-                  <div className="mt-4">
+                  <div className="mt-3">
                     <button className="btn btn-secondary me-2" onClick={() => setSelectedQuiz(null)}>Back to Quizzes</button>
-                    <button className="btn btn-warning" onClick={retakeQuiz}>Retake Quiz</button>
+                    <button className="btn btn-outline-primary" onClick={() => startQuiz(selectedQuiz)}>Retake Quiz</button>
                   </div>
                 </>
               )}

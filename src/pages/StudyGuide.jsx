@@ -70,9 +70,9 @@ function StudyGuide() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
 
-  const handleFormChange = (e, index, field) => {
+  const handleFormChange = (value, index, field) => {
     const newSlides = [...form.slides];
-    newSlides[index][field] = e.target.value;
+    newSlides[index][field] = value;
     setForm({ ...form, slides: newSlides });
   };
 
@@ -183,30 +183,22 @@ function StudyGuide() {
         {user?.role === "admin" && (
           <form onSubmit={handleSubmit}>
             <h3 className="text-primary mb-4">Add New Topic</h3>
-            <input
-              className="form-control mb-3"
-              placeholder="Title"
+            <ReactQuill
+              theme="snow"
               value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              required
+              onChange={(value) => setForm({ ...form, title: value })}
             />
             {form.slides.map((slide, index) => (
               <div key={index} className="mb-3 border p-3 bg-white rounded">
-                <input
-                  className="form-control mb-2"
-                  placeholder={`Subtitle ${index + 1}`}
+                <ReactQuill
+                  theme="snow"
                   value={slide.subtitle}
-                  onChange={(e) => handleFormChange(e, index, "subtitle")}
-                  required
+                  onChange={(value) => handleFormChange(value, index, "subtitle")}
                 />
                 <ReactQuill
                   theme="snow"
                   value={slide.content}
-                  onChange={(value) => {
-                    const newSlides = [...form.slides];
-                    newSlides[index].content = value;
-                    setForm({ ...form, slides: newSlides });
-                  }}
+                  onChange={(value) => handleFormChange(value, index, "content")}
                 />
                 {form.slides.length > 1 && (
                   <button
@@ -239,7 +231,7 @@ function StudyGuide() {
             <div key={topic.id} className="col-md-4 mb-3">
               <div className="card" onClick={() => openModal(index)}>
                 <div className="card-body">
-                  <h5 className="card-title">{topic.title}</h5>
+                  <h5 className="card-title" dangerouslySetInnerHTML={{ __html: topic.title }} />
                 </div>
               </div>
             </div>
@@ -251,11 +243,11 @@ function StudyGuide() {
             <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header">
-                  <h5 className="modal-title">{topics[modalIndex].title}</h5>
+                  <div className="modal-title" dangerouslySetInnerHTML={{ __html: topics[modalIndex].title }} />
                   <button type="button" className="btn-close" onClick={closeModal}></button>
                 </div>
                 <div className="modal-body">
-                  <h6>{topics[modalIndex].slides[slideIndex].subtitle}</h6>
+                  <div dangerouslySetInnerHTML={{ __html: topics[modalIndex].slides[slideIndex].subtitle }} />
                   <div dangerouslySetInnerHTML={{ __html: topics[modalIndex].slides[slideIndex].content }} />
                 </div>
                 <div className="modal-footer">
@@ -282,20 +274,19 @@ function StudyGuide() {
                 </div>
                 {editingId && (
                   <div className="p-3">
-                    <input
-                      className="form-control mb-2"
+                    <ReactQuill
+                      theme="snow"
                       value={editForm.title}
-                      onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                      onChange={(value) => setEditForm({ ...editForm, title: value })}
                     />
                     {editForm.slides.map((slide, idx) => (
                       <div key={idx} className="mb-3 border p-3 bg-white rounded">
-                        <input
-                          className="form-control mb-2"
-                          placeholder="Subtitle"
+                        <ReactQuill
+                          theme="snow"
                           value={slide.subtitle}
-                          onChange={(e) => {
+                          onChange={(value) => {
                             const updated = [...editForm.slides];
-                            updated[idx].subtitle = e.target.value;
+                            updated[idx].subtitle = value;
                             setEditForm({ ...editForm, slides: updated });
                           }}
                         />

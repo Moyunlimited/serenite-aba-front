@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../index.css";
 import API_BASE from "../config";
@@ -7,6 +8,7 @@ import "react-quill/dist/quill.snow.css";
 
 function StudyGuide() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [topics, setTopics] = useState([]);
   const [form, setForm] = useState({ title: "", slides: [{ subtitle: "", content: "" }] });
   const [modalIndex, setModalIndex] = useState(null);
@@ -14,6 +16,13 @@ function StudyGuide() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ title: "", slides: [{ subtitle: "", content: "" }] });
   const [openedTopics, setOpenedTopics] = useState([]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     const saved = localStorage.getItem("openedTopics");

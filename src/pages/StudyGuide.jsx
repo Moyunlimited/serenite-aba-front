@@ -1,3 +1,4 @@
+// same imports as before
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import "../index.css";
@@ -53,21 +54,22 @@ function StudyGuide() {
     setEditingId(null);
   };
 
+  const handleKeyDown = (e) => {
+    if (modalIndex === null) return;
+    const slides = topics[modalIndex]?.slides;
+    if (e.key === "ArrowRight" && slideIndex < slides.length - 1) {
+      setSlideIndex((prev) => prev + 1);
+    } else if (e.key === "ArrowLeft" && slideIndex > 0) {
+      setSlideIndex((prev) => prev - 1);
+    } else if (e.key === "Escape") {
+      closeModal();
+    }
+  };
+
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (modalIndex === null) return;
-      const slides = topics[modalIndex]?.slides;
-      if (e.key === "ArrowRight" && slideIndex < slides.length - 1) {
-        setSlideIndex((prev) => prev + 1);
-      } else if (e.key === "ArrowLeft" && slideIndex > 0) {
-        setSlideIndex((prev) => prev - 1);
-      } else if (e.key === "Escape") {
-        closeModal();
-      }
-    };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [modalIndex, slideIndex, topics]);
+  });
 
   const handleFormChange = (e, index, field) => {
     const newSlides = [...form.slides];
@@ -77,6 +79,10 @@ function StudyGuide() {
 
   const addSlideField = () => {
     setForm({ ...form, slides: [...form.slides, { subtitle: "", content: "" }] });
+  };
+
+  const addSlideToEditForm = () => {
+    setEditForm({ ...editForm, slides: [...editForm.slides, { subtitle: "", content: "" }] });
   };
 
   const handleSubmit = async (e) => {
@@ -117,6 +123,26 @@ function StudyGuide() {
     const updatedSlides = [...editForm.slides];
     updatedSlides[index].content = value;
     setEditForm({ ...editForm, slides: updatedSlides });
+  };
+
+  const handleDeleteTopic = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this topic?");
+    if (!confirmDelete) return;
+
+    const topicId = topics[modalIndex].id;
+    const res = await fetch(`${API_BASE}/api/guide/${topicId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+      },
+    });
+
+    if (res.ok) {
+      setTopics(topics.filter((t) => t.id !== topicId));
+      closeModal();
+    } else {
+      alert("Failed to delete topic");
+    }
   };
 
   const saveEdit = async () => {
@@ -219,7 +245,10 @@ function StudyGuide() {
                   disabled={slideIndex === topics[modalIndex].slides.length - 1}
                 >Next</button>
                 {user?.role === "admin" && (
-                  <button className="btn btn-warning" onClick={startEdit}>Edit</button>
+                  <>
+                    <button className="btn btn-warning me-2" onClick={startEdit}>Edit</button>
+                    <button className="btn btn-danger" onClick={handleDeleteTopic}>Delete Topic</button>
+                  </>
                 )}
               </div>
               {editingId && (
@@ -257,7 +286,8 @@ function StudyGuide() {
                       </button>
                     </div>
                   ))}
-                  <button className="btn btn-success mt-3" onClick={saveEdit}>Save</button>
+                  <button className="btn btn-outline-secondary mt-2" onClick={addSlideToEditForm}>Add Slide</button>
+                  <button className="btn btn-success mt-2 ms-2" onClick={saveEdit}>Save</button>
                 </div>
               )}
             </div>

@@ -180,6 +180,8 @@ function StudyGuide() {
       }}
     >
       <div className="container">
+        <h2 className="text-center text-dark mb-4">📚 Study Guide</h2>
+
         {user?.role === "admin" && (
           <form onSubmit={handleSubmit}>
             <h3 className="text-primary mb-4">Add New Topic</h3>

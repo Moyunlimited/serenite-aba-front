@@ -120,6 +120,15 @@ function StudyGuide() {
     setEditForm({ ...editForm, slides: updatedSlides });
   };
 
+  const addEditSlide = () => {
+    setEditForm({ ...editForm, slides: [...editForm.slides, { subtitle: "", content: "" }] });
+  };
+
+  const deleteEditSlide = (index) => {
+    const updatedSlides = editForm.slides.filter((_, i) => i !== index);
+    setEditForm({ ...editForm, slides: updatedSlides });
+  };
+
   const saveEdit = async () => {
     const content = editForm.slides.map((s) => `${s.subtitle}\n${s.content}`).join("\n\n");
     const res = await fetch(`${API_BASE}/api/guide/${editingId}`, {
@@ -295,8 +304,18 @@ function StudyGuide() {
                           value={slide.content}
                           onChange={(value) => handleEditChange(idx, value)}
                         />
+                        {editForm.slides.length > 1 && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-danger mt-2"
+                            onClick={() => deleteEditSlide(idx)}
+                          >
+                            Delete
+                          </button>
+                        )}
                       </div>
                     ))}
+                    <button className="btn btn-secondary me-2" type="button" onClick={addEditSlide}>Add Subtitle</button>
                     <button className="btn btn-success" onClick={saveEdit}>
                       Save Changes
                     </button>
